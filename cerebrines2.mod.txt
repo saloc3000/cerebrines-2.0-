@@ -52,7 +52,7 @@ e=0.04;
 ji=0.4;
 
 //****************************************************************************
-//enter the model equations (model-block)
+//enter the model equations (model-block) adad
 //****************************************************************************
 model;
 [name='ley de movimiento del capital']
