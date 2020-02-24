@@ -1,0 +1,150 @@
+//****************************************************************************
+//Define variables
+//****************************************************************************
+var c       ${c}$ (long_name='consumo (intensive form)')
+    k       ${k}$ (long_name='capital (intensive form)')
+    h	    ${h}$ (long_name='capital humano (intensive form)')
+    y       ${y}$ (long_name='producción (intensive form)')
+    invest  ${i}$ (long_name='inversión (intensive form)')
+    log_c       ${\log c}$ (long_name='log consumo(intensive form)')
+    log_k       ${\log k}$ (long_name='log capital (intensive form)')
+    log_y       ${\log y}$ (long_name='log producción (intensive form)')
+    log_h	${\log h}$ (long_name='log capital humano (intensive form)')
+    log_invest  ${\log i}$ (long_name='log inversión (intensive form)')
+    g_k_aggregate       ${\Delta K}$ (long_name='tasa de crecimiento del capital agregada')
+    g_k_per_capita      ${\Delta \tilde k}$ (long_name='tasa de crecimiento del capital per capita')
+    g_k_intensive       ${\Delta k}$ (long_name='tasa de crecimiento del capital en unidades efectivas')
+    g_h_aggregate       ${\Delta K}$ (long_name='tasa de crecimiento del capital humano agregada')
+    g_h_per_capita      ${\Delta \tilde k}$ (long_name='tasa de crecimiento del capital  humano percapita ')
+    g_h_intensive       ${\Delta k}$ (long_name='tasa de crecimiento del capital humano en unidades efectivas')	
+
+        ;
+//****************************************************************************
+//Define predetermined variables
+//****************************************************************************
+predetermined_variables k;
+predetermined_variables h;
+//****************************************************************************
+//Define parameters
+//****************************************************************************
+parameters sk   ${sk}$ (long_name='tasa de ahorro en capital')
+    sh    	${sh}$ (long_name='tasa de ahorro en capital humano')	
+    alpha       ${\alpha}$ (long_name='participación del capital en la producción')
+    delta       ${\delta}$ (long_name='tasa de dreciación')
+    n           ${n}$ (long_name='tasa de crecimiento de la poblacion')
+    g           ${g}$ (long_name='tasa de crecimiento de la teconologia')
+    j		${j}$ (long_name='tasa de inmigrantes')
+    e		${e}$ (long_name='tasa de emigrantes')	
+    ji		${ji}$ (long_name='participacion del capital humano en la producion')	
+;
+//****************************************************************************
+//set parameters
+//****************************************************************************
+sk=0.2;
+sh=0.3
+alpha=0.3;
+delta=0.1;
+n=0.01;
+g=0.02;
+g_initial=0.02;
+j=0.03;
+e=0.04;
+ji=0.4;
+
+//****************************************************************************
+//enter the model equations (model-block)
+//****************************************************************************
+model;
+[name='ley de movimiento del capital']
+(1+g)*(1+n+j-e)*k(+1)=(1-delta)*k+invest;
+[name='ley de movimiento del capital humano']
+(1+g)*(1+n+j-e)*h(+1)=(1-delta)*k+invest;
+[name='resource constraint']
+invest+c=y;
+[name='behavioral rule savings']
+c=(1-sk-sh)*y;
+[name='funcion de produccion']
+y=k^alpha*h^ji;
+[name='Definition log output']
+log_y=log(y);
+[name='Definition log consumption']
+log_c=log(c);
+[name='Definition log investment']
+log_invest=log(invest);
+[name='Definition capital decided upon today']
+log_k=log(k(+1));
+[name='Definition capital human decided upon today']
+log_h=log(h(+1));
+[name='Definition capital growth rate between today and tomorrow ']
+g_k_intensive=log(k(+1))-log(k); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
+[name='Definition capital per capita growth rate between today and tomorrow']
+g_k_per_capita=g_k_intensive+g+j-e; 
+[name='Definition aggregate capital growth rate between today and tomorrow']
+g_k_aggregate=g_k_intensive+g+n+j-e;
+[name='Definition capital human growth rate between today and tomorrow ']
+g_h_intensive=log(h(+1))-log(h); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
+[name='Definition capital human per capita growth rate between today and tomorrow']
+g_h_per_capita=g_h_intensive+g+j-e; 
+[name='Definition aggregate capital human growth rate between today and tomorrow']
+g_h_aggregate=g_h_intensive+g+n+j-e;  
+end;
+//****************************************************************************
+//initval-block: set initial condition of capital to 90% of steady state value 
+//****************************************************************************
+initval;
+    k=0.9*((delta+n+g+n+j-e*g)/sk^(1-ji)*sh^(ji))^(1/(1*alpha-ji));
+    h=0.9*((delta+n+g+n+j-e*g)/sk^(1-alpha)*sh^(alpha))^(1/(1*alpha-ji));	
+    y=k^alpha*h^ji;
+    c=(1-sk-sh)*y;
+    invest=y-c;
+    log_y=log(y);
+    log_c=log(c);
+    log_invest=log(invest);
+    log_k=log(k);
+    log_h=log(h);	
+    g_k_intensive=0;	
+    g_k_per_capita=g_k_intensive+g+j-e; 
+    g_k_aggregate=g_k_intensive+g+n+j-e;
+    g_h_intensive=0;
+    g_h_per_capita=g_h_intensive+g+j-e; 
+    g_h_aggregate=g_h_intensive+g+n+j-e;	
+end;
+//****************************************************************************
+//endval-block: set terminal condition to steady state value
+//****************************************************************************
+endval;
+    k=((delta+n+g+n+j-e*g)/sk^(1-ji)*sh^(ji))^(1/(1*alpha-ji));
+    h=((delta+n+g+n+j-e*g)/sk^(1-alpha)*sh^(alpha))^(1/(1*alpha-ji));
+    y=k^alpha*h^ji;
+    c=(1-sk-sh)*y;
+    invest=y-c;
+    log_y=log(y);
+    log_c=log(c);
+    log_invest=log(invest);
+    log_k=log(k);
+    g_k_intensive=0;
+    g_k_per_capita=g_k_intensive+g; 
+    g_k_aggregate=g_k_intensive+g+n;
+end;
+//****************************************************************************
+//resid command: show residuals based on last entered block 
+//(should be 0 if our SS was correct)
+//****************************************************************************
+resid;
+//****************************************************************************
+//perfect_foresight_setup: set up the simulation for 200 periods
+//you can check the settings in oo_.endo_simul (and oo_.exo_simul if there 
+//were exogenous variables)
+//****************************************************************************
+perfect_foresight_setup(periods=200);
+//****************************************************************************
+//perfect_foresight_solver: compute the solution
+//****************************************************************************
+perfect_foresight_solver;
+//****************************************************************************
+//rplot command: display simulation results
+//****************************************************************************
+rplot log_k;
+rplot log_c;
+rplot log_y;
+rplot log_h;
