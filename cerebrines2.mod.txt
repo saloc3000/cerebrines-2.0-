@@ -1,5 +1,4 @@
 
-
 //Define variables
 //****************************************************************************
 var c       ${c}$ (long_name='consumo (intensive form)')
@@ -17,13 +16,15 @@ var c       ${c}$ (long_name='consumo (intensive form)')
     g_k_intensive       ${\Delta k}$ (long_name='tasa de crecimiento del capital en unidades efectivas')
     g_h_aggregate       ${\Delta K}$ (long_name='tasa de crecimiento del capital humano agregada')
     g_h_per_capita      ${\Delta \tilde k}$ (long_name='tasa de crecimiento del capital  humano percapita ')
-    g_h_intensive       ${\Delta k}$ (long_name='tasa de crecimiento del capital humano en unidades efectivas')	
+    g_h_intensive       ${\Delta k}$ (long_name='tasa de crecimiento del capital humano en unidades efectivas')
+    	
 	
         ;
 //****************************************************************************
-// definiendo variables exogenas
+//bloque definiendo variables exogenas****************************************
+//******************************************************************************
 	varexo 
-
+  
    e		${e}$ (long_name='tasa de emigrantes')
    j		${j}$ (long_name='tasa de inmigrantes')
 ;	
@@ -49,24 +50,24 @@ parameters sk   ${sk}$ (long_name='tasa de ahorro en capital')
 //****************************************************************************
 //set parameters
 //****************************************************************************
-sk=0.2;
-sh=0.05;
-alpha=0.3;
+sk=0.414;
+sh=0.548;
+alpha=0.1;
 delta=0.1;
-n=0.001;
+n=0.548;
 g=0.002;
-ji=0.3;
-fi_j_t=0.8;
-fi_e_t=0.2;
+ji=0.8;
+fi_j_t=0.2;
+fi_e_t=1;
 
 //****************************************************************************
 //enter the model equations (model-block)
 //****************************************************************************
 model;
 [name='ley de movimiento del capital']
-k(+1)=sk*(k^(alpha*ji))-(n+g+delta)*k-(j-e)*k+k;
+k(+1)=sk*(k^alpha*h^ji)-(n+g+delta)*k-(j-e)*k+k;
 [name='ley de movimiento del capital humano']
-h(+1)=sh*(k^(alpha*ji))-(n+g+delta)*h+j*(1-fi_j_t)*h+e*(1-fi_e_t)*h+h;
+h(+1)=sh*(k^alpha*h^ji)-(n+g+delta)*h+j*(1-fi_j_t)*h+e*(1-fi_e_t)*h+h;
 [name='resource constraint']
 invest+c=y;
 [name='behavioral rule savings']
@@ -88,13 +89,13 @@ g_k_intensive=log(k(+1))-log(k); //this is capital growth rate between today and
 [name='Definition capital per capita growth rate between today and tomorrow']
 g_k_per_capita=g_k_intensive+g; 
 [name='Definition aggregate capital growth rate between today and tomorrow']
-g_k_aggregate=g_k_intensive+g+n;
+g_k_aggregate=g_k_intensive+g+n+j-e;
 [name='Definition capital human growth rate between today and tomorrow ']
 g_h_intensive=log(h(+1))-log(h); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
 [name='Definition capital human per capita growth rate between today and tomorrow']
 g_h_per_capita=g_h_intensive+g; 
 [name='Definition aggregate capital human growth rate between today and tomorrow']
-g_h_aggregate=g_h_intensive+g+n;  
+g_h_aggregate=g_h_intensive+g+n+j-e;  
 end;
 //****************************************************************************
 //initval-block: set initial condition of capital to 90% of steady state value 
@@ -116,14 +117,17 @@ initval;
     g_h_intensive=0;
     g_h_per_capita=g_h_intensive+g; 
     g_h_aggregate=g_h_intensive+g+n+j-e;
-    e=0.2;
-    j=0.3;		
+    e=0.034;
+    j=0;
+    	
 end;
 //****************************************************************************
+//bloque de choques***********************************************************
+//****************************************************************************
 shocks;
-var j;
-periods 1:50;
-values 0.4;
+var e;
+periods 1:10;
+values 0.3;
 end;
 //****************************************************************************
 //endval-block: set terminal condition to steady state value
@@ -164,8 +168,7 @@ steady;
 //****************************************************************************
 //rplot command: display simulation results
 //****************************************************************************
-rplot log_k;
-rplot log_c;
-rplot log_y;
-rplot log_h;
-rplot y;
+rplot k, log_k;
+rplot c, log_c;
+rplot y, log_y;
+rplot h, log_h;
