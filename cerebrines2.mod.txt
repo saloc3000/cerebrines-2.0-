@@ -1,4 +1,5 @@
 
+
 //Define variables
 //****************************************************************************
 var c       ${c}$ (long_name='consumo (intensive form)')
@@ -49,13 +50,13 @@ parameters sk   ${sk}$ (long_name='tasa de ahorro en capital')
 //set parameters
 //****************************************************************************
 sk=0.2;
-sh=0.3;
+sh=0.05;
 alpha=0.3;
 delta=0.1;
-n=0.01;
-g=0.02;
-j=0.03;
-fi_j_t=0.1;
+n=0.001;
+g=0.002;
+ji=0.3;
+fi_j_t=0.8;
 fi_e_t=0.2;
 
 //****************************************************************************
@@ -87,20 +88,20 @@ g_k_intensive=log(k(+1))-log(k); //this is capital growth rate between today and
 [name='Definition capital per capita growth rate between today and tomorrow']
 g_k_per_capita=g_k_intensive+g; 
 [name='Definition aggregate capital growth rate between today and tomorrow']
-g_k_aggregate=g_k_intensive+g+n+j-e;
+g_k_aggregate=g_k_intensive+g+n;
 [name='Definition capital human growth rate between today and tomorrow ']
 g_h_intensive=log(h(+1))-log(h); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
 [name='Definition capital human per capita growth rate between today and tomorrow']
 g_h_per_capita=g_h_intensive+g; 
 [name='Definition aggregate capital human growth rate between today and tomorrow']
-g_h_aggregate=g_h_intensive+g+n+j-e;  
+g_h_aggregate=g_h_intensive+g+n;  
 end;
 //****************************************************************************
 //initval-block: set initial condition of capital to 90% of steady state value 
 //****************************************************************************
 initval;
     k=0.9*(((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji));
-    h=0.9*((sh*((((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji)))^alpha)/(n+g+delta+j*(1-fi_j_t)-e(1-fi_e_t)))^(1/(1-alpha));
+    h=0.9*((sh*((((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji)))^alpha)/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(1/(1-alpha));
     y=k^alpha*h^ji;
     c=(1-sk-sh)*y;
     invest=y-c;
@@ -114,14 +115,22 @@ initval;
     g_k_aggregate=g_k_intensive+g+n+j-e;
     g_h_intensive=0;
     g_h_per_capita=g_h_intensive+g; 
-    g_h_aggregate=g_h_intensive+g+n+j-e;	
+    g_h_aggregate=g_h_intensive+g+n+j-e;
+    e=0.2;
+    j=0.3;		
+end;
+//****************************************************************************
+shocks;
+var j;
+periods 1:50;
+values 0.4;
 end;
 //****************************************************************************
 //endval-block: set terminal condition to steady state value
 //****************************************************************************
 endval;
     k=(((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji));
-    h=((sh*((((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji)))^alpha)/(n+g+delta+j*(1-fi_j_t)-e(1-fi_e_t)))^(1/(1-alpha));
+    h=((sh*((((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji)))^alpha)/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(1/(1-alpha));
     y=k^alpha*h^ji;
     c=(1-sk-sh)*y;
     invest=y-c;
@@ -151,6 +160,7 @@ perfect_foresight_setup(periods=200);
 //perfect_foresight_solver: compute the solution
 //****************************************************************************
 perfect_foresight_solver;
+steady;
 //****************************************************************************
 //rplot command: display simulation results
 //****************************************************************************
@@ -158,3 +168,4 @@ rplot log_k;
 rplot log_c;
 rplot log_y;
 rplot log_h;
+rplot y;
