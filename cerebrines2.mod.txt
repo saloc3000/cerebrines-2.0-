@@ -1,4 +1,4 @@
-//****************************************************************************
+
 //Define variables
 //****************************************************************************
 var c       ${c}$ (long_name='consumo (intensive form)')
@@ -17,8 +17,15 @@ var c       ${c}$ (long_name='consumo (intensive form)')
     g_h_aggregate       ${\Delta K}$ (long_name='tasa de crecimiento del capital humano agregada')
     g_h_per_capita      ${\Delta \tilde k}$ (long_name='tasa de crecimiento del capital  humano percapita ')
     g_h_intensive       ${\Delta k}$ (long_name='tasa de crecimiento del capital humano en unidades efectivas')	
-
+	
         ;
+//****************************************************************************
+// definiendo variables exogenas
+	varexo 
+
+   e		${e}$ (long_name='tasa de emigrantes')
+   j		${j}$ (long_name='tasa de inmigrantes')
+;	
 //****************************************************************************
 //Define predetermined variables
 //****************************************************************************
@@ -33,32 +40,32 @@ parameters sk   ${sk}$ (long_name='tasa de ahorro en capital')
     delta       ${\delta}$ (long_name='tasa de dreciación')
     n           ${n}$ (long_name='tasa de crecimiento de la poblacion')
     g           ${g}$ (long_name='tasa de crecimiento de la teconologia')
-    j		${j}$ (long_name='tasa de inmigrantes')
-    e		${e}$ (long_name='tasa de emigrantes')	
-    ji		${ji}$ (long_name='participacion del capital humano en la producion')	
+    ji		${ji}$ (long_name='participacion del capital humano en la producion')	  
+    fi_j_t    	${ fi_j_t}$ (long_name='vaina rara xd')
+    fi_e_t    	${fi_e_t}$ (long_name='vaina rara xd x2')	
+
 ;
 //****************************************************************************
 //set parameters
 //****************************************************************************
 sk=0.2;
-sh=0.3
+sh=0.3;
 alpha=0.3;
 delta=0.1;
 n=0.01;
 g=0.02;
-g_initial=0.02;
 j=0.03;
-e=0.04;
-ji=0.4;
+fi_j_t=0.1;
+fi_e_t=0.2;
 
 //****************************************************************************
 //enter the model equations (model-block)
 //****************************************************************************
 model;
 [name='ley de movimiento del capital']
-(1+g)*(1+n+j-e)*k(+1)=(1-delta)*k+invest;
+k(+1)=sk*(k^(alpha*ji))-(n+g+delta)*k-(j-e)*k+k;
 [name='ley de movimiento del capital humano']
-(1+g)*(1+n+j-e)*h(+1)=(1-delta)*k+invest;
+h(+1)=sh*(k^(alpha*ji))-(n+g+delta)*h+j*(1-fi_j_t)*h+e*(1-fi_e_t)*h+h;
 [name='resource constraint']
 invest+c=y;
 [name='behavioral rule savings']
@@ -78,13 +85,13 @@ log_h=log(h(+1));
 [name='Definition capital growth rate between today and tomorrow ']
 g_k_intensive=log(k(+1))-log(k); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
 [name='Definition capital per capita growth rate between today and tomorrow']
-g_k_per_capita=g_k_intensive+g+j-e; 
+g_k_per_capita=g_k_intensive+g; 
 [name='Definition aggregate capital growth rate between today and tomorrow']
 g_k_aggregate=g_k_intensive+g+n+j-e;
 [name='Definition capital human growth rate between today and tomorrow ']
 g_h_intensive=log(h(+1))-log(h); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
 [name='Definition capital human per capita growth rate between today and tomorrow']
-g_h_per_capita=g_h_intensive+g+j-e; 
+g_h_per_capita=g_h_intensive+g; 
 [name='Definition aggregate capital human growth rate between today and tomorrow']
 g_h_aggregate=g_h_intensive+g+n+j-e;  
 end;
@@ -92,7 +99,7 @@ end;
 //initval-block: set initial condition of capital to 90% of steady state value 
 //****************************************************************************
 initval;
-    k=0.9*((delta+n+g+n+j-e*g)/sk^(1-ji)*sh^(ji))^(1/(1*alpha-ji));
+    k=((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/1-alpha)))^((1-alpha)*(1-ji)/((1-ji)*(1-alpha)-(ji*alpha));
     h=0.9*((delta+n+g+n+j-e*g)/sk^(1-alpha)*sh^(alpha))^(1/(1*alpha-ji));	
     y=k^alpha*h^ji;
     c=(1-sk-sh)*y;
@@ -103,17 +110,17 @@ initval;
     log_k=log(k);
     log_h=log(h);	
     g_k_intensive=0;	
-    g_k_per_capita=g_k_intensive+g+j-e; 
+    g_k_per_capita=g_k_intensive+g; 
     g_k_aggregate=g_k_intensive+g+n+j-e;
     g_h_intensive=0;
-    g_h_per_capita=g_h_intensive+g+j-e; 
+    g_h_per_capita=g_h_intensive+g; 
     g_h_aggregate=g_h_intensive+g+n+j-e;	
 end;
 //****************************************************************************
 //endval-block: set terminal condition to steady state value
 //****************************************************************************
 endval;
-    k=((delta+n+g+n+j-e*g)/sk^(1-ji)*sh^(ji))^(1/(1*alpha-ji));
+    k=((sk*(sh/(n+g+delta+j*(1-fi_j-t)-e(1-fi_e_t)))/(n+g+delta+i-e))^(((1-ji)*(1-alpha)-(alpha*ji))/((1-alpha)(1-ji)));
     h=((delta+n+g+n+j-e*g)/sk^(1-alpha)*sh^(alpha))^(1/(1*alpha-ji));
     y=k^alpha*h^ji;
     c=(1-sk-sh)*y;
@@ -124,7 +131,10 @@ endval;
     log_k=log(k);
     g_k_intensive=0;
     g_k_per_capita=g_k_intensive+g; 
-    g_k_aggregate=g_k_intensive+g+n;
+    g_k_aggregate=g_k_intensive+g+n+j-e;
+    g_h_intensive=0;
+    g_h_per_capita=g_h_intensive+g; 
+    g_h_aggregate=g_h_intensive+g+n+j-e;	
 end;
 //****************************************************************************
 //resid command: show residuals based on last entered block 
