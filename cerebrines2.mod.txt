@@ -59,7 +59,7 @@ fi_j_t=0.1;
 fi_e_t=0.2;
 
 //****************************************************************************
-//enter the model equations (model-block) adad
+//enter the model equations (model-block)
 //****************************************************************************
 model;
 [name='ley de movimiento del capital']
@@ -99,8 +99,8 @@ end;
 //initval-block: set initial condition of capital to 90% of steady state value 
 //****************************************************************************
 initval;
-    k=((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/1-alpha)))^((1-alpha)*(1-ji)/((1-ji)*(1-alpha)-(ji*alpha));
-    h=0.9*((delta+n+g+n+j-e*g)/sk^(1-alpha)*sh^(alpha))^(1/(1*alpha-ji));	
+    k=0.9*(((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji));
+    h=0.9*((sh*((((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji)))^alpha)/(n+g+delta+j*(1-fi_j_t)-e(1-fi_e_t)))^(1/(1-alpha));
     y=k^alpha*h^ji;
     c=(1-sk-sh)*y;
     invest=y-c;
@@ -120,8 +120,8 @@ end;
 //endval-block: set terminal condition to steady state value
 //****************************************************************************
 endval;
-    k=((sk*(sh/(n+g+delta+j*(1-fi_j-t)-e(1-fi_e_t)))/(n+g+delta+i-e))^(((1-ji)*(1-alpha)-(alpha*ji))/((1-alpha)(1-ji)));
-    h=((delta+n+g+n+j-e*g)/sk^(1-alpha)*sh^(alpha))^(1/(1*alpha-ji));
+    k=(((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji));
+    h=((sh*((((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji)))^alpha)/(n+g+delta+j*(1-fi_j_t)-e(1-fi_e_t)))^(1/(1-alpha));
     y=k^alpha*h^ji;
     c=(1-sk-sh)*y;
     invest=y-c;
