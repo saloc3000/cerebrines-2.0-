@@ -59,7 +59,7 @@ fi_j_t=0.1;
 fi_e_t=0.2;
 
 //****************************************************************************
-//enter the model equations (model-block)
+//enter the model equations (model-block) adad
 //****************************************************************************
 model;
 [name='ley de movimiento del capital']
