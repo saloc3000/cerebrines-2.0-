@@ -61,7 +61,7 @@ g=0.0114;
 ji=0.54;
 fi_j_t=0.88;
 fi_e_t=1.12;
-e_inicial=0.2;
+e_inicial=0.1;
 j_inicial=0.014;
 
 //****************************************************************************
@@ -81,7 +81,7 @@ y=k^alpha*h^ji;
 [name='Definition log output']
 log_y=abs(log(y));
 [name='Definition log consumption']
-log_c=log(c);
+log_c=abs(log(c));
 [name='Definition log investment']
 log_invest=log(invest);
 [name='Definition capital decided upon today']
@@ -129,11 +129,11 @@ end;
 //****************************************************************************
 //bloque de choques***********************************************************
 //****************************************************************************
-//shocks;
-//var e;
-//periods 1:10;
-//values 0.3;
-//end;
+shocks;
+var e;
+periods 1:40;
+values 0.2;
+end;
 //****************************************************************************
 //endval-block: set terminal condition to steady state value
 //****************************************************************************
@@ -153,7 +153,7 @@ endval;
     g_h_intensive=0;
     g_h_per_capita=g_h_intensive+g; 
     g_h_aggregate=g_h_intensive+g+n+j-e;
-    e=0.4;
+    e=e_inicial;
     j=j_inicial;	
 end;
 steady;
@@ -177,27 +177,25 @@ perfect_foresight_solver;
 //****************************************************************************
 //rplot command: display simulation results
 //****************************************************************************
-rplot  log_k;
+//****************************************************************************
+rplot  log_k , log_y,log_h;
 
-rplot  log_y;
-rplot  log_h;
-rplot   g_k_intensive;
-rplot   g_h_intensive;
+rplot   log_k;
+rplot   log_h;
 figure('Name','Change in e')
 subplot(4,1,1)
 plot(log_k)
 axis tight
-title('Log k in intensive form')
-        
+title('Log k in intensive form')        
 subplot(4,1,2)
-plot(g_k_intensive)
-axis tight
-title('Growth rate of per capita k')
-subplot(4,1,3)
-plot(g_h_intensive)
-axis tight
-title('Growth rate of per capita h')
-subplot(4,1,4)
 plot(log_h)
 axis tight
-title('Log h in intensive form')
+title('log h')
+subplot(4,1,3)
+plot(log_c)
+axis tight
+title('log_c')
+subplot(4,1,4)
+plot(log_y)
+axis tight
+title('Log y')
