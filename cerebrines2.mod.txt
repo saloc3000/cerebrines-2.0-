@@ -71,7 +71,7 @@ model;
 [name='ley de movimiento del capital']
 k(+1)=sk*(k^alpha*h^ji)-(n+g+delta)*k-(j-e)*k+k;
 [name='ley de movimiento del capital humano']
-h(+1)=sh*(k^alpha*h^ji)-(n+g+delta)*h+j*(1-fi_j_t)*h+e*(1-fi_e_t)*h+h;
+h(+1)=sh*(k^alpha*h^ji)-(n+g+delta)*h-j*(1-fi_j_t)*h+e*(1-fi_e_t)*h+h;
 [name='resource constraint']
 invest+c=y;
 [name='behavioral rule savings']
