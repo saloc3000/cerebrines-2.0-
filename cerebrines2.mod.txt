@@ -1,4 +1,5 @@
 
+
 //Define variables
 //****************************************************************************
 var c       ${c}$ (long_name='consumo (intensive form)')
@@ -45,20 +46,23 @@ parameters sk   ${sk}$ (long_name='tasa de ahorro en capital')
     ji		${ji}$ (long_name='participacion del capital humano en la producion')	  
     fi_j_t    	${ fi_j_t}$ (long_name='vaina rara xd')
     fi_e_t    	${fi_e_t}$ (long_name='vaina rara xd x2')	
-
+    e_inicial
+    j_inicial		
 ;
 //****************************************************************************
 //set parameters
 //****************************************************************************
-sk=0.414;
-sh=0.548;
-alpha=0.1;
-delta=0.1;
-n=0.548;
-g=0.002;
-ji=0.8;
-fi_j_t=0.2;
-fi_e_t=1;
+sk=0.22;
+sh=0.42;
+alpha=0.39;
+delta=0.45;
+n=0.01;
+g=0.0114;
+ji=0.54;
+fi_j_t=0.88;
+fi_e_t=1.12;
+e_inicial=0.2;
+j_inicial=0.014;
 
 //****************************************************************************
 //enter the model equations (model-block)
@@ -75,34 +79,34 @@ c=(1-sk-sh)*y;
 [name='funcion de produccion']
 y=k^alpha*h^ji;
 [name='Definition log output']
-log_y=log(y);
+log_y=abs(log(y));
 [name='Definition log consumption']
 log_c=log(c);
 [name='Definition log investment']
 log_invest=log(invest);
 [name='Definition capital decided upon today']
-log_k=log(k(+1));
+log_k=abs(log(k(+1)));
 [name='Definition capital human decided upon today']
-log_h=log(h(+1));
+log_h=abs(log(h(+1)));
 [name='Definition capital growth rate between today and tomorrow ']
-g_k_intensive=log(k(+1))-log(k); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
+g_k_intensive=abs(log(k(+1))-log(k)); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
 [name='Definition capital per capita growth rate between today and tomorrow']
 g_k_per_capita=g_k_intensive+g; 
 [name='Definition aggregate capital growth rate between today and tomorrow']
-g_k_aggregate=g_k_intensive+g+n+j-e;
+g_k_aggregate=abs(g_k_intensive+g+n+j-e);
 [name='Definition capital human growth rate between today and tomorrow ']
-g_h_intensive=log(h(+1))-log(h); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
+g_h_intensive=abs(log(h(+1))-log(h)); //this is capital growth rate between today and tomorrow that is decided upon based on the growth rate of labor augmenting technology between today and tomorrow
 [name='Definition capital human per capita growth rate between today and tomorrow']
-g_h_per_capita=g_h_intensive+g; 
+g_h_per_capita=abs(g_h_intensive+g); 
 [name='Definition aggregate capital human growth rate between today and tomorrow']
-g_h_aggregate=g_h_intensive+g+n+j-e;  
+g_h_aggregate=abs(g_h_intensive+g+n+j-e);  
 end;
 //****************************************************************************
 //initval-block: set initial condition of capital to 90% of steady state value 
 //****************************************************************************
 initval;
-    k=0.9*(((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji));
-    h=0.9*((sh*((((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji)))^alpha)/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(1/(1-alpha));
+    k=(((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji));
+    h=((sh*((((sk*(sh/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(ji/(1-ji)))/(n+g+delta+j-e))^(1/(1-alpha)))^((1-ji)*(1-alpha)/((1-ji)*(1-alpha)-alpha*ji)))^alpha)/(n+g+delta+j*(1-fi_j_t)-e*(1-fi_e_t)))^(1/(1-alpha));
     y=k^alpha*h^ji;
     c=(1-sk-sh)*y;
     invest=y-c;
@@ -117,18 +121,19 @@ initval;
     g_h_intensive=0;
     g_h_per_capita=g_h_intensive+g; 
     g_h_aggregate=g_h_intensive+g+n+j-e;
-    e=0.034;
-    j=0;
+    e=e_inicial;
+    j=j_inicial;
     	
 end;
+
 //****************************************************************************
 //bloque de choques***********************************************************
 //****************************************************************************
-shocks;
-var e;
-periods 1:10;
-values 0.3;
-end;
+//shocks;
+//var e;
+//periods 1:10;
+//values 0.3;
+//end;
 //****************************************************************************
 //endval-block: set terminal condition to steady state value
 //****************************************************************************
@@ -147,8 +152,11 @@ endval;
     g_k_aggregate=g_k_intensive+g+n+j-e;
     g_h_intensive=0;
     g_h_per_capita=g_h_intensive+g; 
-    g_h_aggregate=g_h_intensive+g+n+j-e;	
+    g_h_aggregate=g_h_intensive+g+n+j-e;
+    e=0.4;
+    j=j_inicial;	
 end;
+steady;
 //****************************************************************************
 //resid command: show residuals based on last entered block 
 //(should be 0 if our SS was correct)
@@ -164,11 +172,32 @@ perfect_foresight_setup(periods=200);
 //perfect_foresight_solver: compute the solution
 //****************************************************************************
 perfect_foresight_solver;
-steady;
+//steady;
+
 //****************************************************************************
 //rplot command: display simulation results
 //****************************************************************************
-rplot k, log_k;
-rplot c, log_c;
-rplot y, log_y;
-rplot h, log_h;
+rplot  log_k;
+
+rplot  log_y;
+rplot  log_h;
+rplot   g_k_intensive;
+rplot   g_h_intensive;
+figure('Name','Change in e')
+subplot(4,1,1)
+plot(log_k)
+axis tight
+title('Log k in intensive form')
+        
+subplot(4,1,2)
+plot(g_k_intensive)
+axis tight
+title('Growth rate of per capita k')
+subplot(4,1,3)
+plot(g_h_intensive)
+axis tight
+title('Growth rate of per capita h')
+subplot(4,1,4)
+plot(log_h)
+axis tight
+title('Log h in intensive form')
